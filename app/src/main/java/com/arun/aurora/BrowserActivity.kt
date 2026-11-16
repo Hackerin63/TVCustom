@@ -18,7 +18,7 @@ import android.graphics.drawable.GradientDrawable
 
 class BrowserActivity : Activity() {
     private lateinit var web: WebView
-    private lateinit var url: EditText
+    private lateinit var addressInput: EditText
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +39,7 @@ class BrowserActivity : Activity() {
                 .apply { marginEnd = Ui.dp(this@BrowserActivity, 8) }
         }
 
-        url = EditText(this).apply {
+        addressInput = EditText(this).apply {
             hint = "Search Google or type a website"
             setHintTextColor(0x88FFFFFF.toInt())
             setTextColor(Color.WHITE)
@@ -67,7 +67,9 @@ class BrowserActivity : Activity() {
             settings.domStorageEnabled = true
             settings.builtInZoomControls = false
             webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView, u: String) { url.setText(u) }
+                override fun onPageFinished(view: WebView, u: String) {
+                    addressInput.text = u
+                }
             }
         }
 
@@ -75,8 +77,8 @@ class BrowserActivity : Activity() {
         bar.addView(btn("Next") { if (web.canGoForward()) web.goForward() })
         bar.addView(btn("Reload") { web.reload() })
         bar.addView(btn("Google") { web.loadUrl("https://www.google.com") })
-        bar.addView(url)
-        bar.addView(btn("Go") { go(url.text.toString()) })
+        bar.addView(addressInput)
+        bar.addView(btn("Go") { go(addressInput.text.toString()) })
 
         root.addView(bar)
         root.addView(web, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
