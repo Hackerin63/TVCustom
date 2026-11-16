@@ -68,7 +68,7 @@ class BrowserActivity : Activity() {
             settings.builtInZoomControls = false
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView, u: String) {
-                    this@BrowserActivity.url.text = u
+                    this@BrowserActivity.url.setText(u)
                 }
             }
         }
