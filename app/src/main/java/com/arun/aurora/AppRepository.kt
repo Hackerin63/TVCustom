@@ -25,6 +25,8 @@ class AppRepository(private val ctx: Context) {
     private fun recents(): List<String> =
         prefs.getString("recents", "")!!.split(",").filter { it.isNotBlank() }
 
+    fun isFavorite(pkg: String) = pkg in favs()
+
     fun favorites(all: List<AppEntry>) = all.filter { it.pkg in favs() }
     fun recent(all: List<AppEntry>): List<AppEntry> =
         recents().mapNotNull { p -> all.firstOrNull { it.pkg == p } }

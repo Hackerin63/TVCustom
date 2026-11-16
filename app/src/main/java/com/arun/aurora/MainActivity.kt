@@ -3,7 +3,10 @@ package com.arun.aurora
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.net.Uri
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
@@ -69,13 +72,52 @@ class MainActivity : Activity() {
     }
 
     private fun newAdapter() = AppAdapter(
-        onClick = { e ->
-            repo.recordLaunch(e.pkg)
-            startActivity(Intent(Intent.ACTION_MAIN).setComponent(e.component)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED))
-        },
-        onLong = { e -> repo.toggleFavorite(e.pkg); refresh() }
+        onClick = { e -> launch(e) },
+        onLong = { e -> showAppMenu(e) }
     )
+
+    private fun launch(e: AppEntry) {
+        repo.recordLaunch(e.pkg)
+        startActivity(Intent(Intent.ACTION_MAIN).setComponent(e.component)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED))
+    }
+
+    // Hold OK on an app tile -> context menu (Open / Favorite / App info / Uninstall)
+    private fun showAppMenu(e: AppEntry) {
+        val isFav = repo.isFavorite(e.pkg)
+        val isPureSystem = try {
+            val f = packageManager.getApplicationInfo(e.pkg, 0).flags
+            (f and ApplicationInfo.FLAG_SYSTEM) != 0 && (f and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0
+        } catch (_: Exception) { true }
+
+        val labels = mutableListOf("Open", if (isFav) "Remove from favorites" else "Add to favorites", "App info")
+        val actions = mutableListOf<() -> Unit>(
+            { launch(e) },
+            { repo.toggleFavorite(e.pkg); refresh() },
+            { openAppInfo(e.pkg) }
+        )
+        if (!isPureSystem) {
+            labels.add("Uninstall")
+            actions.add { uninstall(e.pkg) }
+        }
+        AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert)
+            .setTitle(e.label)
+            .setItems(labels.toTypedArray()) { _, i -> actions[i]() }
+            .show()
+    }
+
+    private fun openAppInfo(pkg: String) {
+        try {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$pkg"))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (_: Exception) { openSettings(Settings.ACTION_APPLICATION_SETTINGS) }
+    }
+
+    private fun uninstall(pkg: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:$pkg")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (_: Exception) { openAppInfo(pkg) }
+    }
 
     private fun setupRow(rv: RecyclerView, a: AppAdapter) {
         rv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
