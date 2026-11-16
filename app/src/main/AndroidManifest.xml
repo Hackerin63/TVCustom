@@ -3,13 +3,15 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="true" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <queries>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LEANBACK_LAUNCHER" /></intent>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent>
     </queries>
-    <application android:label="KPM TV" android:icon="@drawable/banner" android:banner="@drawable/banner"
-        android:theme="@style/AppTheme" android:allowBackup="false">
+    <application android:label="KPM TV" android:icon="@drawable/ic_launcher" android:banner="@drawable/banner"
+        android:theme="@style/AppTheme" android:allowBackup="false" android:usesCleartextTraffic="true">
         <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask"
             android:stateNotNeeded="true" android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode">
             <intent-filter>
@@ -19,5 +21,8 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SettingsActivity" android:exported="false" />
+        <activity android:name=".BrowserActivity" android:exported="false" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+        <activity android:name=".GameActivity" android:exported="false" android:screenOrientation="landscape" />
     </application>
 </manifest>

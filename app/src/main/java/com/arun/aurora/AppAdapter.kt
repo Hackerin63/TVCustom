@@ -7,14 +7,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class AppAdapter(
-    private val onClick: (AppEntry) -> Unit,
-    private val onLong: (AppEntry) -> Unit
-) : RecyclerView.Adapter<AppAdapter.VH>() {
+class ItemAdapter(
+    private val onClick: (Item) -> Unit,
+    private val onLong: (Item) -> Unit,
+    private val onFocus: (Item, View) -> Unit
+) : RecyclerView.Adapter<ItemAdapter.VH>() {
 
-    private var items: List<AppEntry> = emptyList()
+    var accent: Int = 0xFF6EA8FF.toInt()
+    var upFocusId: Int = View.NO_ID
+    private var items: List<Item> = emptyList()
 
-    fun submit(list: List<AppEntry>) { items = list; notifyDataSetChanged() }
+    fun submit(list: List<Item>) { items = list; notifyDataSetChanged() }
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val icon: ImageView = v.findViewById(R.id.icon)
@@ -27,23 +30,34 @@ class AppAdapter(
     override fun getItemCount() = items.size
 
     override fun onBindViewHolder(h: VH, pos: Int) {
-        val e = items[pos]
-        val pm = h.itemView.context.packageManager
-        val banner = try { pm.getActivityBanner(e.component) } catch (_: Exception) { null }
-        if (banner != null) {
-            h.icon.scaleType = ImageView.ScaleType.CENTER_CROP
-            h.icon.setImageDrawable(banner)
+        val item = items[pos]
+        val ctx = h.itemView.context
+        val app = item.app
+        if (app != null) {
+            val pm = ctx.packageManager
+            val banner = try { pm.getActivityBanner(app.component) } catch (_: Exception) { null }
+            if (banner != null) {
+                h.icon.scaleType = ImageView.ScaleType.CENTER_CROP
+                h.icon.setImageDrawable(banner)
+            } else {
+                h.icon.scaleType = ImageView.ScaleType.FIT_CENTER
+                h.icon.setImageDrawable(try { pm.getActivityIcon(app.component) } catch (_: Exception) { null })
+            }
         } else {
-            h.icon.scaleType = ImageView.ScaleType.FIT_CENTER
-            h.icon.setImageDrawable(try { pm.getActivityIcon(e.component) } catch (_: Exception) { null })
+            h.icon.scaleType = ImageView.ScaleType.FIT_XY
+            h.icon.setImageDrawable(BadgeDrawable(item.badge ?: "?", item.c1, item.c2))
         }
-        h.label.text = e.label
-        h.itemView.setOnClickListener { onClick(e) }
-        h.itemView.setOnLongClickListener { onLong(e); true }
+        h.label.text = item.label
+        if (upFocusId != View.NO_ID) h.itemView.nextFocusUpId = upFocusId
+        h.itemView.background = Ui.tileBg(ctx, accent, false)
+        h.itemView.setOnClickListener { onClick(item) }
+        h.itemView.setOnLongClickListener { onLong(item); true }
         h.itemView.setOnFocusChangeListener { v, focused ->
-            val s = if (focused) 1.1f else 1f
-            v.animate().scaleX(s).scaleY(s).setDuration(120).start()
-            v.translationZ = if (focused) 8f else 0f
+            v.background = Ui.tileBg(ctx, accent, focused)
+            val s = if (focused) 1.12f else 1f
+            v.animate().scaleX(s).scaleY(s).setDuration(170).setInterpolator(android.view.animation.DecelerateInterpolator()).start()
+            v.translationZ = if (focused) 10f else 0f
+            if (focused) onFocus(item, v)
         }
     }
 }

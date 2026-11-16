@@ -6,6 +6,16 @@ import android.content.Intent
 
 data class AppEntry(val pkg: String, val label: String, val component: ComponentName)
 
+// One tile in the sliding menu: either an installed app or a built-in entry (game / themes)
+data class Item(
+    val id: String,
+    val label: String,
+    val app: AppEntry? = null,
+    val badge: String? = null,
+    val c1: Int = 0,
+    val c2: Int = 0
+)
+
 class AppRepository(private val ctx: Context) {
     private val pm = ctx.packageManager
     private val prefs = ctx.getSharedPreferences("aurora", Context.MODE_PRIVATE)

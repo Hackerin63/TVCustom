@@ -9,8 +9,8 @@ android {
         applicationId = "com.arun.aurora"
         minSdk = 28
         targetSdk = 30
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 4
+        versionName = "0.4"
     }
     buildTypes { release { isMinifyEnabled = true; proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt")) } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
