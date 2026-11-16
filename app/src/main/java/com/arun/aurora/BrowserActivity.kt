@@ -67,9 +67,7 @@ class BrowserActivity : Activity() {
             settings.domStorageEnabled = true
             settings.builtInZoomControls = false
             webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView, u: String) {
-                    addressInput.text = u
-                }
+                override fun onPageFinished(view: WebView, u: String) { this@BrowserActivity.url.setText(u) }
             }
         }
 
