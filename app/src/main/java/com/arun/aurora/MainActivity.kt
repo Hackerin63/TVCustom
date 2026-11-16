@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import androidx.recyclerview.widget.GridLayoutManager
 import java.util.Locale
 
 class MainActivity : Activity() {
@@ -53,7 +54,9 @@ class MainActivity : Activity() {
         favRow = findViewById(R.id.favRow); recentRow = findViewById(R.id.recentRow)
         favAdapter = newAdapter(); recentAdapter = newAdapter(); allAdapter = newAdapter()
         setupRow(favRow, favAdapter); setupRow(recentRow, recentAdapter)
-        setupRow(findViewById(R.id.allRow), allAdapter)
+        val allRv = findViewById<RecyclerView>(R.id.allRow)
+allRv.layoutManager = GridLayoutManager(this, 5)
+allRv.adapter = allAdapter
     }
 
     private fun newAdapter() = AppAdapter(
